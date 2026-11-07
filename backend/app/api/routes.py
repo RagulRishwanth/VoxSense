@@ -497,10 +497,10 @@ def importance():
     vals = np.asarray(explanation.values)
     if vals.ndim == 3:
         vals = vals[:, :, 1]
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
     try:
+        import matplotlib
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
         shap.plots.beeswarm(explanation[:, :, 1], max_display=12, show=False)
         plt.gcf().savefig(ARTIFACTS / "shap_summary.png", dpi=150, bbox_inches="tight")
         plt.close(plt.gcf())

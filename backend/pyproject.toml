@@ -10,7 +10,6 @@ dependencies = [
     "scikit-learn==1.6.0",
     "joblib==1.4.2",
     "pydantic==2.10.4",
-    "matplotlib==3.10.0",
     "shap==0.46.0",
 ]
 
