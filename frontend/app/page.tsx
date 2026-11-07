@@ -44,7 +44,7 @@ import {
   YAxis,
 } from 'recharts';
 
-const API = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api').replace(/\/+$/, '');
+const API = (process.env.NEXT_PUBLIC_API_URL || '/api').replace(/\/+$/, '');
 const HISTORY_STORAGE_KEY = 'voxsense_recent_analyses_v1';
 
 type NavSection = 'Overview' | 'Analyze Voice Biomarkers' | 'Patient Insights' | 'About VoxSense';
@@ -533,6 +533,11 @@ export default function Home() {
     if (!file) return;
     if (!file.name.toLowerCase().endsWith('.csv') && file.type !== 'text/csv') {
       setBatchError('Please select a valid .csv file.');
+      return;
+    }
+    const MAX_CLIENT_CSV_BYTES = 4 * 1024 * 1024; // 4MB
+    if (file.size > MAX_CLIENT_CSV_BYTES) {
+      setBatchError(`File size (${(file.size / (1024 * 1024)).toFixed(2)} MB) exceeds the maximum upload limit of 4 MB.`);
       return;
     }
     const reader = new FileReader();

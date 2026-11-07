@@ -116,6 +116,8 @@ def classify(body: Features):
         "research_notice": "Research estimate only; not a diagnosis."
     }
 
+MAX_BATCH_CSV_BYTES = 4 * 1024 * 1024  # 4 MB (well within Vercel's 4.5 MB function payload limit)
+
 @router.post("/predict/batch")
 def predict_batch(body: BatchRequest):
     art = artifact("classification")
@@ -128,6 +130,11 @@ def predict_batch(body: BatchRequest):
         text = body.csv_text.strip()
         if not text:
             raise HTTPException(422, "Uploaded CSV content is empty.")
+        if len(text.encode("utf-8")) > MAX_BATCH_CSV_BYTES:
+            raise HTTPException(
+                413,
+                f"CSV payload exceeds serverless limit of 4 MB ({len(text.encode('utf-8')) / (1024 * 1024):.2f} MB). Please reduce file size."
+            )
         reader = csv.DictReader(io.StringIO(text))
         if not reader.fieldnames:
             raise HTTPException(422, "CSV header row is missing or unreadable.")
