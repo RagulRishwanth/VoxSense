@@ -24,6 +24,7 @@ def severity_features(columns):
     return [column for column in columns if column not in excluded]
 
 def train():
+    ARTIFACTS.mkdir(parents=True, exist_ok=True)
     results = {"classification": {}, "severity": {}}
     c = dataset("classification")
     X = c.drop(columns=["name", "status"]); y = c.status

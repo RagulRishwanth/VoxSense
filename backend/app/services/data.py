@@ -1,7 +1,7 @@
 from functools import lru_cache
 import numpy as np
 import pandas as pd
-from app.core.config import RAW, RANDOM_STATE
+from app.core.config import ARTIFACTS, RAW, RANDOM_STATE
 from sklearn.model_selection import GroupShuffleSplit
 
 FEATURE_METADATA = {
