@@ -93,3 +93,4 @@ All inference metadata and model weights are packaged into `backend/artifacts/` 
 3. Leave the **Root Directory** as the repository root (`./`), so Vercel detects `vercel.json`.
 4. Click **Deploy**. Vercel will build both services automatically.
 5. Once deployment completes, your app is live on your `*.vercel.app` domain.
+
