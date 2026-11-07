@@ -51,7 +51,11 @@ def _validate_feature_values(required_features: list[str], values: dict[str, flo
 
 @router.get("/health")
 def health():
-    return {"status": "ok", "models_ready": (ARTIFACTS / "classification.joblib").exists()}
+    return {
+        "status": "ok",
+        "models_ready": (ARTIFACTS / "classification.joblib").exists(),
+        "metadata_ready": (ARTIFACTS / "inference_metadata.json").exists()
+    }
 
 @router.get("/overview")
 def get_overview():
@@ -282,133 +286,156 @@ def severity(body: Features):
 
 @router.get("/progression/{patient_id}")
 def progression(patient_id: int):
-    df = dataset("severity")
-    rows = df[df["subject#"] == patient_id].sort_values("test_time").copy()
-    if rows.empty:
-        raise HTTPException(404, "Patient identifier not found")
-    min_t = float(rows["test_time"].min())
-    max_t = float(rows["test_time"].max())
-    rows["elapsed_days"] = (rows["test_time"] - min_t).round(4)
-    record_cols = [
-        "test_time", "elapsed_days", "motor_UPDRS", "total_UPDRS",
-        "HNR", "Jitter(%)", "Shimmer", "RPDE", "DFA", "PPE"
-    ]
-    available_cols = [c for c in record_cols if c in rows.columns]
-    first_row = rows.iloc[0]
-    last_row = rows.iloc[-1]
-    pre_baseline_count = int((rows["test_time"] < 0).sum())
-    return {
-        "patient_id": patient_id,
-        "summary": {
+    try:
+        df = dataset("severity")
+        rows = df[df["subject#"] == patient_id].sort_values("test_time").copy()
+        if rows.empty:
+            raise HTTPException(404, "Patient identifier not found")
+        min_t = float(rows["test_time"].min())
+        max_t = float(rows["test_time"].max())
+        rows["elapsed_days"] = (rows["test_time"] - min_t).round(4)
+        record_cols = [
+            "test_time", "elapsed_days", "motor_UPDRS", "total_UPDRS",
+            "HNR", "Jitter(%)", "Shimmer", "RPDE", "DFA", "PPE"
+        ]
+        available_cols = [c for c in record_cols if c in rows.columns]
+        first_row = rows.iloc[0]
+        last_row = rows.iloc[-1]
+        pre_baseline_count = int((rows["test_time"] < 0).sum())
+        return {
             "patient_id": patient_id,
-            "age": int(first_row["age"]),
-            "sex": int(first_row["sex"]),
-            "sex_label": "Female" if int(first_row["sex"]) == 1 else "Male",
-            "observations": int(len(rows)),
-            "test_time_min": min_t,
-            "test_time_max": max_t,
-            "elapsed_span_days": round(max_t - min_t, 2),
-            "pre_baseline_records": pre_baseline_count,
-            "motor_mean": float(rows["motor_UPDRS"].mean()),
-            "motor_std": float(rows["motor_UPDRS"].std()),
-            "motor_min": float(rows["motor_UPDRS"].min()),
-            "motor_max": float(rows["motor_UPDRS"].max()),
-            "motor_first": float(first_row["motor_UPDRS"]),
-            "motor_last": float(last_row["motor_UPDRS"]),
-            "motor_delta": float(last_row["motor_UPDRS"] - first_row["motor_UPDRS"]),
-            "total_mean": float(rows["total_UPDRS"].mean()),
-            "total_std": float(rows["total_UPDRS"].std()),
-            "total_min": float(rows["total_UPDRS"].min()),
-            "total_max": float(rows["total_UPDRS"].max()),
-            "total_first": float(first_row["total_UPDRS"]),
-            "total_last": float(last_row["total_UPDRS"]),
-            "total_delta": float(last_row["total_UPDRS"] - first_row["total_UPDRS"]),
-        },
-        "records": rows[available_cols].to_dict(orient="records"),
-        "notice": "Descriptive repeated measurements; not a forecast."
-    }
+            "summary": {
+                "patient_id": patient_id,
+                "age": int(first_row["age"]),
+                "sex": int(first_row["sex"]),
+                "sex_label": "Female" if int(first_row["sex"]) == 1 else "Male",
+                "observations": int(len(rows)),
+                "test_time_min": min_t,
+                "test_time_max": max_t,
+                "elapsed_span_days": round(max_t - min_t, 2),
+                "pre_baseline_records": pre_baseline_count,
+                "motor_mean": float(rows["motor_UPDRS"].mean()),
+                "motor_std": float(rows["motor_UPDRS"].std()),
+                "motor_min": float(rows["motor_UPDRS"].min()),
+                "motor_max": float(rows["motor_UPDRS"].max()),
+                "motor_first": float(first_row["motor_UPDRS"]),
+                "motor_last": float(last_row["motor_UPDRS"]),
+                "motor_delta": float(last_row["motor_UPDRS"] - first_row["motor_UPDRS"]),
+                "total_mean": float(rows["total_UPDRS"].mean()),
+                "total_std": float(rows["total_UPDRS"].std()),
+                "total_min": float(rows["total_UPDRS"].min()),
+                "total_max": float(rows["total_UPDRS"].max()),
+                "total_first": float(first_row["total_UPDRS"]),
+                "total_last": float(last_row["total_UPDRS"]),
+                "total_delta": float(last_row["total_UPDRS"] - first_row["total_UPDRS"]),
+            },
+            "records": rows[available_cols].to_dict(orient="records"),
+            "notice": "Descriptive repeated measurements; not a forecast."
+        }
+    except Exception as e:
+        if isinstance(e, HTTPException):
+            raise e
+        # Fall back to progression_patients artifact in deployed environments
+        prog_path = ARTIFACTS / "progression_patients.json"
+        if prog_path.exists():
+            import json
+            prog_data = json.loads(prog_path.read_text(encoding="utf-8"))
+            pid_str = str(patient_id)
+            if pid_str in prog_data:
+                return prog_data[pid_str]
+            raise HTTPException(404, "Patient identifier not found")
+        raise HTTPException(500, "Progression data unavailable.")
 
 @router.get("/progression-summary")
 def progression_summary():
-    df = dataset("severity").copy()
-    df["period_days"] = (np.floor(df.test_time / 30) * 30).astype(int)
-    grouped = (
-        df.groupby("period_days")
-        .agg(
-            motor_UPDRS=("motor_UPDRS", "mean"),
-            total_UPDRS=("total_UPDRS", "mean"),
-            records=("subject#", "size"),
-            participants=("subject#", "nunique"),
-            min_day=("test_time", "min"),
-            max_day=("test_time", "max"),
+    try:
+        df = dataset("severity").copy()
+        df["period_days"] = (np.floor(df.test_time / 30) * 30).astype(int)
+        grouped = (
+            df.groupby("period_days")
+            .agg(
+                motor_UPDRS=("motor_UPDRS", "mean"),
+                total_UPDRS=("total_UPDRS", "mean"),
+                records=("subject#", "size"),
+                participants=("subject#", "nunique"),
+                min_day=("test_time", "min"),
+                max_day=("test_time", "max"),
+            )
+            .reset_index()
         )
-        .reset_index()
-    )
-    period_records = []
-    for r in grouped.to_dict(orient="records"):
-        p = int(r["period_days"])
-        label = f"Pre-baseline ({r['min_day']:.1f} to 0d)" if p < 0 else f"Days {p}–{p + 29}"
-        period_records.append({**r, "period_label": label})
+        period_records = []
+        for r in grouped.to_dict(orient="records"):
+            p = int(r["period_days"])
+            label = f"Pre-baseline ({r['min_day']:.1f} to 0d)" if p < 0 else f"Days {p}–{p + 29}"
+            period_records.append({**r, "period_label": label})
 
-    # Also compute elapsed-time bins aligned to each subject's first recording (0 to 210 days)
-    df["subject_start"] = df.groupby("subject#")["test_time"].transform("min")
-    df["elapsed_days"] = df["test_time"] - df["subject_start"]
-    df["elapsed_bin"] = (np.floor(df["elapsed_days"] / 30) * 30).astype(int)
-    elapsed_grouped = (
-        df.groupby("elapsed_bin")
-        .agg(
-            motor_UPDRS=("motor_UPDRS", "mean"),
-            total_UPDRS=("total_UPDRS", "mean"),
-            records=("subject#", "size"),
-            participants=("subject#", "nunique"),
+        # Also compute elapsed-time bins aligned to each subject's first recording (0 to 210 days)
+        df["subject_start"] = df.groupby("subject#")["test_time"].transform("min")
+        df["elapsed_days"] = df["test_time"] - df["subject_start"]
+        df["elapsed_bin"] = (np.floor(df["elapsed_days"] / 30) * 30).astype(int)
+        elapsed_grouped = (
+            df.groupby("elapsed_bin")
+            .agg(
+                motor_UPDRS=("motor_UPDRS", "mean"),
+                total_UPDRS=("total_UPDRS", "mean"),
+                records=("subject#", "size"),
+                participants=("subject#", "nunique"),
+            )
+            .reset_index()
+            .rename(columns={"elapsed_bin": "period_days"})
         )
-        .reset_index()
-        .rename(columns={"elapsed_bin": "period_days"})
-    )
-    elapsed_records = [
-        {**r, "period_label": f"Elapsed Days {int(r['period_days'])}–{int(r['period_days']) + 29}"}
-        for r in elapsed_grouped.to_dict(orient="records")
-    ]
+        elapsed_records = [
+            {**r, "period_label": f"Elapsed Days {int(r['period_days'])}–{int(r['period_days']) + 29}"}
+            for r in elapsed_grouped.to_dict(orient="records")
+        ]
 
-    # Per-participant summary across all 42 subjects
-    df_sorted = df.sort_values(["subject#", "test_time"])
-    subj_list = []
-    for sid, group in df_sorted.groupby("subject#"):
-        first_r = group.iloc[0]
-        last_r = group.iloc[-1]
-        t_min, t_max = float(group["test_time"].min()), float(group["test_time"].max())
-        subj_list.append({
-            "patient_id": int(sid),
-            "age": int(first_r["age"]),
-            "sex": int(first_r["sex"]),
-            "sex_label": "Female" if int(first_r["sex"]) == 1 else "Male",
-            "observations": int(len(group)),
-            "test_time_min": t_min,
-            "test_time_max": t_max,
-            "elapsed_span_days": round(t_max - t_min, 2),
-            "pre_baseline_records": int((group["test_time"] < 0).sum()),
-            "motor_mean": float(group["motor_UPDRS"].mean()),
-            "motor_min": float(group["motor_UPDRS"].min()),
-            "motor_max": float(group["motor_UPDRS"].max()),
-            "motor_delta": float(last_r["motor_UPDRS"] - first_r["motor_UPDRS"]),
-            "total_mean": float(group["total_UPDRS"].mean()),
-            "total_min": float(group["total_UPDRS"].min()),
-            "total_max": float(group["total_UPDRS"].max()),
-            "total_delta": float(last_r["total_UPDRS"] - first_r["total_UPDRS"]),
-        })
+        # Per-participant summary across all 42 subjects
+        df_sorted = df.sort_values(["subject#", "test_time"])
+        subj_list = []
+        for sid, group in df_sorted.groupby("subject#"):
+            first_r = group.iloc[0]
+            last_r = group.iloc[-1]
+            t_min, t_max = float(group["test_time"].min()), float(group["test_time"].max())
+            subj_list.append({
+                "patient_id": int(sid),
+                "age": int(first_r["age"]),
+                "sex": int(first_r["sex"]),
+                "sex_label": "Female" if int(first_r["sex"]) == 1 else "Male",
+                "observations": int(len(group)),
+                "test_time_min": t_min,
+                "test_time_max": t_max,
+                "elapsed_span_days": round(t_max - t_min, 2),
+                "pre_baseline_records": int((group["test_time"] < 0).sum()),
+                "motor_mean": float(group["motor_UPDRS"].mean()),
+                "motor_min": float(group["motor_UPDRS"].min()),
+                "motor_max": float(group["motor_UPDRS"].max()),
+                "motor_delta": float(last_r["motor_UPDRS"] - first_r["motor_UPDRS"]),
+                "total_mean": float(group["total_UPDRS"].mean()),
+                "total_min": float(group["total_UPDRS"].min()),
+                "total_max": float(group["total_UPDRS"].max()),
+                "total_delta": float(last_r["total_UPDRS"] - first_r["total_UPDRS"]),
+            })
 
-    return {
-        "period_days": period_records,
-        "elapsed_period_days": elapsed_records,
-        "participants": subj_list,
-        "time_alignment_note": (
-            "test_time is measured in days relative to each participant's formal baseline recruitment date (Day 0). "
-            "12 observations across Subjects 34 (-3.31d) and 42 (-4.26d) were recorded 3–4 days before formal baseline enrollment, "
-            "which places them in the <0 day pre-baseline bin when grouped by recruitment date. "
-            "Aligning by each participant's first observation (Elapsed Days ≥ 0) spans 0 to 204.0 days."
-        ),
-        "notice": "Descriptive means in approximate 30-day study-time bins. Sampling density varies over time; this is not a forecast."
-    }
+        return {
+            "period_days": period_records,
+            "elapsed_period_days": elapsed_records,
+            "participants": subj_list,
+            "time_alignment_note": (
+                "test_time is measured in days relative to each participant's formal baseline recruitment date (Day 0). "
+                "12 observations across Subjects 34 (-3.31d) and 42 (-4.26d) were recorded 3–4 days before formal baseline enrollment, "
+                "which places them in the <0 day pre-baseline bin when grouped by recruitment date. "
+                "Aligning by each participant's first observation (Elapsed Days ≥ 0) spans 0 to 204.0 days."
+            ),
+            "notice": "Descriptive means in approximate 30-day study-time bins. Sampling density varies over time; this is not a forecast."
+        }
+    except Exception:
+        meta_path = ARTIFACTS / "inference_metadata.json"
+        if meta_path.exists():
+            import json
+            meta = json.loads(meta_path.read_text(encoding="utf-8"))
+            if "progression_summary" in meta:
+                return meta["progression_summary"]
+        raise HTTPException(500, "Progression summary unavailable.")
 
 @router.post("/explain")
 def explain(body: Features):
@@ -452,9 +479,13 @@ def importance():
     except ImportError:
         raise HTTPException(503, "SHAP dependency is not installed")
     art = artifact("classification")
-    df = dataset("classification")
-    X = df[art["features"]].head(12)
     bg = pd.DataFrame(art["background"])
+    try:
+        df = dataset("classification")
+        X = df[art["features"]].head(12)
+    except Exception:
+        # In production where raw datasets are excluded, use the representative background records
+        X = bg[art["features"]].head(12)
     explanation = shap.Explainer(art["model"].predict_proba, bg)(X, max_evals=2 * len(art["features"]) + 1)
     vals = np.asarray(explanation.values)
     if vals.ndim == 3:
@@ -462,13 +493,16 @@ def importance():
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-    shap.plots.beeswarm(explanation[:, :, 1], max_display=12, show=False)
-    plt.gcf().savefig(ARTIFACTS / "shap_summary.png", dpi=150, bbox_inches="tight")
-    plt.close(plt.gcf())
+    try:
+        shap.plots.beeswarm(explanation[:, :, 1], max_display=12, show=False)
+        plt.gcf().savefig(ARTIFACTS / "shap_summary.png", dpi=150, bbox_inches="tight")
+        plt.close(plt.gcf())
+    except Exception:
+        pass
     scores = np.abs(vals).mean(axis=0)
     order = np.argsort(scores)[::-1][:12]
     return {
-        "method": "Mean absolute SHAP value on 12 supplied records",
+        "method": "Mean absolute SHAP value on 12 representative records",
         "causal_claim": False,
         "features": [{"feature": art["features"][i], "importance": float(scores[i])} for i in order]
     }

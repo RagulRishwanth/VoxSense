@@ -6,9 +6,6 @@ venv/
 .next/
 node_modules/
 .tmp/
-backend/artifacts/*.joblib
-backend/artifacts/*.json
-backend/artifacts/*.png
 data/processed/*
 !data/processed/.gitkeep
 data/raw/*
@@ -16,3 +13,4 @@ data/raw/*
 reports/generated/*
 !reports/generated/.gitkeep
 .DS_Store
+

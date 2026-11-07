@@ -44,7 +44,7 @@ import {
   YAxis,
 } from 'recharts';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+const API = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api').replace(/\/+$/, '');
 const HISTORY_STORAGE_KEY = 'voxsense_recent_analyses_v1';
 
 type NavSection = 'Overview' | 'Analyze Voice Biomarkers' | 'Patient Insights' | 'About VoxSense';
@@ -300,7 +300,7 @@ export default function Home() {
         setPrimaryTrajectory(p1Res);
         setGlobalError('');
       } catch {
-        setGlobalError('Backend is offline. Ensure Python FastAPI is running at http://localhost:8000.');
+        setGlobalError('Backend is offline. Ensure the VoxSense FastAPI backend is running and reachable.');
       }
     }
     initLoad();
