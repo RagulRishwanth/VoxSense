@@ -1,69 +1,498 @@
-# VoxSense
+# VoxSense 🧠
+### Explainable AI for Parkinson's Voice Biomarker Analysis
 
-VoxSense is a local research and educational dashboard for numerical acoustic measurements in two supplied Parkinson’s voice datasets. It does **not** analyze raw audio, recognize speech, or diagnose disease. Its outputs are research estimates and must not guide care.
+VoxSense is an interactive AI-powered research application that analyses voice-derived acoustic measurements to explore patterns associated with Parkinson's disease.
 
-## What is in this repository
+It combines machine learning, longitudinal symptom analysis and Explainable AI (XAI) to provide transparent predictions and insights through an intuitive web application.
 
-- `backend/`: FastAPI service, dataset profiling, grouped model training and API tests.
-- `frontend/`: responsive Next.js dashboard connected to the local API.
-- `data/raw/`: source files, preserved unchanged.
-- `backend/ml/explore.py`: repeatable quality profile and feature distribution plots.
-- `reports/`: methods, measured model evaluation, and documented dataset findings.
-- `docs/ARCHITECTURE.md`: service boundaries and data flow.
+Users can explore acoustic biomarkers, generate predictions using trained ML models, analyse patient-level measurements and understand the factors influencing model outputs.
 
-## Dataset inspection
+> **Disclaimer:** VoxSense is intended strictly for research and educational purposes. It is not a medical diagnostic tool and must not be used to make clinical decisions. The supplied datasets contain numerical acoustic measurements extracted from voice recordings; VoxSense does not process raw audio or perform speech recognition.
 
-The provided `parkinsons.names` describes 197 instances / 23 attributes, while the actual CSV has **195 rows and 24 columns**: 22 numerical acoustic features, `status`, and `name`. There are 48 control rows and 147 Parkinson’s rows. `status` is the binary target (0 control, 1 Parkinson’s). No blank or exact duplicate rows were found. The file’s name field groups recordings under 32 unique prefixes, although the supplied documentation states 31 people; the discrepancy is retained for verification. The model split uses these prefixes as groups, preventing recordings from one prefix crossing training and test sets. The raw name is never a predictor.
+---
 
-`parkinsons_updrs.data` has 5,875 rows and 22 columns: 16 acoustic measures, `subject#`, `age`, `sex`, `test_time`, and the confirmed targets `motor_UPDRS` and `total_UPDRS`. It contains 42 subjects, no blank rows or exact duplicates, and 101–168 observations per subject. Recorded time ranges from −4.2625 to 215.49 days; negative time values are retained as supplied. Subjects are all in an early-stage Parkinson’s study, so this file cannot distinguish disease from control. Its interpolated scores and repeated measures support descriptive within-study trajectories, not proven future prediction.
+## ✨ Key Features
 
-Severity models use only the 16 voice measures. Subject, time, age, sex, and both score columns are excluded from predictors to avoid patient identity, temporal, demographic, and target leakage. A patient-disjoint 25% holdout is used. Classification likewise uses a patient-group-disjoint holdout and grouped five-fold cross-validation on training groups. Grid search and model selection operate only on training patients; classification uses grouped-CV balanced accuracy with ROC-AUC tie-breaking, and regression uses grouped-CV MAE. Class balancing is confined to the logistic regression and SVM training fits. Small patient counts make all reported scores uncertain and non-clinical.
+### 1. Interactive Parkinson's Classification
+- Predicts whether an acoustic feature profile belongs to a healthy control or Parkinson's disease group.
+- Supports manual feature entry.
+- Provides sample patient analysis using records from the supplied dataset.
+- Supports CSV-based batch predictions.
+- Displays model predictions and probabilities where supported.
 
-Numeric missing values, if encountered, are median-imputed within each training pipeline. IQR outliers are flagged for investigation in the generated report and plots; none are silently removed or winsorized. Scaling is fitted within pipelines. Seeds are fixed at 42. No processed copy overwrites source data.
+### 2. Explainable AI
+- Individual prediction explanations using SHAP.
+- Global feature importance.
+- SHAP summary visualisations.
+- Positive and negative feature contributions.
+- Interpretable insights into model behaviour.
 
-## Run locally
+### 3. UPDRS Severity Analysis
+- Predicts Motor UPDRS scores.
+- Predicts Total UPDRS scores.
+- Compares regression models.
+- Evaluates predictions using MAE, RMSE and R².
 
-Use Python 3.11 (recommended) and Node.js 20 or newer.
+### 4. Longitudinal Patient Insights
+- Explores repeated measurements across participants.
+- Visualises Motor UPDRS and Total UPDRS trends.
+- Compares patient trajectories.
+- Provides descriptive analysis of symptom measurements over time.
 
-Place the four supplied source files (`parkinsons.data`, `parkinsons.names`, `parkinsons_updrs.data`, and `parkinsons_updrs.names`) in `data/raw/`. They are intentionally excluded from Git.
+### 5. Model Laboratory
+- Model performance comparison.
+- Classification metrics and confusion matrices.
+- ROC and precision-recall analysis.
+- Regression evaluation.
+- Feature importance visualisations.
+
+### 6. Data Explorer
+- Dataset previews.
+- Feature descriptions.
+- Data quality summaries.
+- Missing-value analysis.
+- Feature distributions and statistical insights.
+
+---
+
+## 🛠️ Technology Stack
+
+| Component | Technologies |
+|---|---|
+| Frontend | Next.js, React, TypeScript |
+| Styling | Tailwind CSS |
+| Backend | Python, FastAPI |
+| Data Processing | Pandas, NumPy |
+| Machine Learning | Scikit-learn, XGBoost (optional) |
+| Explainable AI | SHAP |
+| Visualisation | Recharts, Matplotlib, Plotly |
+| Validation | Pydantic |
+| Testing | Pytest |
+
+---
+
+## 📊 Datasets
+
+VoxSense uses two publicly available Parkinson's voice measurement datasets.
+
+### Dataset 1: Parkinson's Classification Dataset
+
+**Source:** [UCI Machine Learning Repository — Parkinson's Disease](https://archive.ics.uci.edu/dataset/174/parkinsons)
+
+| Attribute | Details |
+|---|---|
+| Records | 195 |
+| Features | 22 numerical acoustic features |
+| Healthy controls | 48 |
+| Parkinson's samples | 147 |
+| Target | `status` |
+| Unique recording-name prefixes | 32 |
+
+The `status` column represents the binary classification target:
+
+- `0` — Healthy control
+- `1` — Parkinson's disease group
+
+The dataset includes acoustic measurements such as:
+
+- MDVP:Fo
+- MDVP:Fhi
+- MDVP:Flo
+- Jitter
+- Shimmer
+- NHR
+- HNR
+- RPDE
+- DFA
+- PPE
+
+The supplied documentation describes 197 instances and 23 attributes, while the actual CSV contains 195 rows and 24 columns, including the `name` identifier. This discrepancy is retained and documented for transparency.
+
+The recording-name prefixes are used to create patient/recording-group-aware splits. The original `name` field is excluded from model predictors.
+
+### Dataset 2: Parkinson's Telemonitoring Dataset
+
+**Source:** [UCI Machine Learning Repository — Parkinsons Telemonitoring](https://archive.ics.uci.edu/dataset/189/parkinsons+telemonitoring)
+
+| Attribute | Details |
+|---|---|
+| Records | 5,875 |
+| Columns | 22 |
+| Participants | 42 |
+| Acoustic features | 16 |
+| Target variables | `motor_UPDRS`, `total_UPDRS` |
+| Measurements per participant | 101–168 |
+
+This dataset contains repeated voice measurements from individuals with early-stage Parkinson's disease.
+
+It is used for:
+
+- Motor UPDRS regression.
+- Total UPDRS regression.
+- Patient-level longitudinal exploration.
+- Descriptive symptom trend analysis.
+
+The dataset does not contain healthy control participants and is therefore not used for disease classification.
+
+### Dataset files
+
+Place the following files inside `data/raw/`:
+
+```text
+data/
+└── raw/
+    ├── parkinsons.data
+    ├── parkinsons.names
+    ├── parkinsons_updrs.data
+    └── parkinsons_updrs.names
+```
+
+**Data privacy:** The original datasets are intentionally excluded from Git. Users must obtain the datasets from their respective sources and place them in the specified directory.
+
+---
+
+## 🧪 Machine Learning Methodology
+
+### Classification
+
+The classification pipeline uses the Parkinson's classification dataset.
+
+Models compared:
+
+- Logistic Regression
+- Support Vector Machine
+- Random Forest
+- Gradient Boosting
+- XGBoost (optional)
+
+Evaluation metrics:
+
+- Accuracy
+- Precision
+- Recall
+- F1-score
+- ROC-AUC
+- Confusion Matrix
+
+The classification pipeline uses recording-group-aware splitting and grouped cross-validation to reduce the risk of recordings from the same group appearing in both training and test sets.
+
+Model selection uses grouped cross-validation balanced accuracy, with ROC-AUC as a tie-breaker.
+
+### Severity Regression
+
+Separate regression models are trained for:
+
+- Motor UPDRS
+- Total UPDRS
+
+The regression pipeline uses the 16 acoustic measurements as predictors.
+
+Patient identifiers, time, demographic attributes and target variables are excluded from predictors.
+
+Evaluation metrics:
+
+- Mean Absolute Error (MAE)
+- Root Mean Squared Error (RMSE)
+- R² Score
+
+A patient-disjoint holdout is used to evaluate generalisation to unseen participants.
+
+### Preprocessing and Leakage Prevention
+
+The implementation includes:
+
+- Missing-value detection and median imputation.
+- IQR-based outlier investigation.
+- Feature scaling within training pipelines.
+- Categorical and numerical preprocessing where applicable.
+- Group-aware data splitting.
+- Cross-validation and hyperparameter tuning.
+- Fixed random seeds for reproducibility.
+
+Preprocessing transformations are fitted only on training data. Raw datasets remain unchanged.
+
+Class balancing is restricted to applicable training fits.
+
+---
+
+## 🔍 Explainable AI
+
+VoxSense uses SHAP to make model predictions more transparent.
+
+The explainability module provides:
+
+| Explanation | Purpose |
+|---|---|
+| Global feature importance | Identifies features influential across predictions |
+| SHAP summary plot | Shows the distribution of feature contributions |
+| Individual explanations | Explains a particular prediction |
+| Feature contribution ranking | Highlights influential measurements |
+| Prediction interpretation | Communicates model behaviour in understandable language |
+
+Feature contributions represent model associations and should not be interpreted as evidence of clinical causation.
+
+---
+
+## 🏗️ Project Architecture
+
+```text
+VoxSense/
+│
+├── backend/
+│   ├── app/
+│   │   ├── api/
+│   │   ├── core/
+│   │   ├── models/
+│   │   ├── schemas/
+│   │   └── services/
+│   │
+│   ├── ml/
+│   │   ├── preprocessing/
+│   │   ├── training/
+│   │   ├── evaluation/
+│   │   └── explainability/
+│   │
+│   ├── artifacts/
+│   ├── tests/
+│   └── requirements.txt
+│
+├── frontend/
+│
+├── data/
+│   ├── raw/
+│   └── processed/
+│
+├── docs/
+│   └── ARCHITECTURE.md
+│
+├── reports/
+│
+├── .gitignore
+└── README.md
+```
+
+The backend handles data processing, model inference, explainability and API operations. The Next.js frontend provides the interactive user experience.
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Python 3.11 (recommended)
+- Node.js 20 or newer
+- npm
+- Git
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/RagulRishwanth/VoxSense.git
+cd VoxSense
+```
+
+### 2. Add the datasets
+
+Download the two datasets from the UCI Machine Learning Repository and place the four source files inside:
+
+```text
+data/raw/
+```
+
+### 3. Set up the backend
+
+**Windows PowerShell:**
 
 ```powershell
 cd backend
+
 python -m venv .venv
+
 .venv\Scripts\Activate.ps1
+
 pip install -r requirements.txt
+```
+
+**macOS/Linux:**
+
+```bash
+cd backend
+
+python3 -m venv .venv
+
+source .venv/bin/activate
+
+pip install -r requirements.txt
+```
+
+### 4. Train the models
+
+Run the training pipeline from the `backend/` directory:
+
+```bash
 python -m app.services.training
+```
+
+Trained model artifacts and measured evaluation results are written to:
+
+```text
+backend/artifacts/
+```
+
+The artifacts are excluded from Git and can be reproduced using the training pipeline.
+
+### 5. Start the backend
+
+From the `backend/` directory:
+
+```bash
 python -m uvicorn app.main:app --reload
 ```
 
-In a second terminal:
+Backend:
+
+`http://localhost:8000`
+
+Interactive API documentation:
+
+`http://localhost:8000/docs`
+
+### 6. Start the frontend
+
+Open a second terminal:
+
+```bash
+cd frontend
+
+npm install
+```
+
+Set the backend API URL.
+
+**Windows PowerShell:**
 
 ```powershell
-cd frontend
-npm install
 $env:NEXT_PUBLIC_API_URL="http://localhost:8000/api"
+
 npm run dev
 ```
 
-Open `http://localhost:3000`; API docs are at `http://localhost:8000/docs`. Raw file paths resolve relative to the repository, not the working directory. Run all backend commands from `backend/`.
+**macOS/Linux:**
 
-To create data quality outputs and histograms, from `backend/` run `python -m ml.explore`. To retrain, run `python -m app.services.training`; model files and measured metrics are written to ignored `backend/artifacts/` and are not committed. Install `requirements.txt` before invoking these commands. XGBoost comparison is added automatically when the optional `xgboost` package is installed; it is omitted by default because its Windows wheel is very large for this small cohort.
+```bash
+export NEXT_PUBLIC_API_URL="http://localhost:8000/api"
 
-## API
+npm run dev
+```
 
-- `GET /api/health`, `/api/overview`, `/api/datasets`, `/api/features/schema`, `/api/samples`
-- `GET /api/models/metrics`, `/api/models/importance`, `/api/models/shap-summary`
-- `GET /api/records/{classification|severity}?limit=100&offset=0`
-- `GET /api/progression/{patient_id}`, `/api/progression-summary`
-- `POST /api/predict/classification`, `/api/predict/severity`, `/api/explain` with `{"values": {"feature": number}}`
-- `POST /api/predict/batch` with `{"csv_text": "..."}` or `{"rows": [...]}` for validated CSV batch classification and downloadable results
+Open:
 
-Prediction requests require the exact feature names expected by each model. Errors use standard FastAPI status codes and a readable detail. Inference returns an unavailable response until real models have been trained. Explanation endpoint reports its actual method; feature contributions are associations, not causation.
+**http://localhost:3000**
 
-## Known limits
+---
 
-The individual explanation endpoint uses SHAP permutation values against a training background; the global importance endpoint reports mean absolute SHAP values on supplied records. Contributions are associations, not causes. Dataset IQR flags are univariate and do not establish erroneous records. There is no external validation cohort, prospective evaluation, calibration study, fairness analysis, or medical-device validation. The interface has no user accounts or persistent patient uploads; supplied records remain local.
+## 🔌 API Reference
 
-## Verification
+The FastAPI backend exposes the following endpoints.
 
-The data profile and distribution figures were generated from the supplied CSVs. The grouped, tuned training pipeline ran and wrote real model artifacts and metrics locally. Backend tests passed (`11 passed`). The Next.js production build passed; the environment fell back from its invalid Windows native SWC module to the WASM compiler. SHAP individual and global importance endpoints returned real values, and the summary image endpoint returned a PNG. `reports/MODEL_EVALUATION.md` documents the measured holdout results, including poor classification specificity and negative severity R². Artifacts remain ignored and are reproducible with the documented commands; no performance metrics are fabricated.
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/health` | Backend health check |
+| GET | `/api/overview` | Dataset overview |
+| GET | `/api/datasets` | Dataset information |
+| GET | `/api/features/schema` | Model feature schema |
+| GET | `/api/samples` | Sample records |
+| GET | `/api/models/metrics` | Model evaluation metrics |
+| GET | `/api/models/importance` | Global feature importance |
+| GET | `/api/models/shap-summary` | SHAP summary |
+| GET | `/api/records/classification` | Classification records |
+| GET | `/api/records/severity` | Severity records |
+| GET | `/api/progression/{patient_id}` | Patient progression data |
+| GET | `/api/progression-summary` | Longitudinal summary |
+| POST | `/api/predict/classification` | Parkinson's classification |
+| POST | `/api/predict/severity` | UPDRS severity prediction |
+| POST | `/api/explain` | Individual prediction explanation |
+| POST | `/api/predict/batch` | Batch CSV classification |
+
+Prediction endpoints require the exact feature names expected by the corresponding model.
+
+Batch classification accepts CSV text or structured rows and returns validated predictions.
+
+---
+
+## ✅ Testing and Verification
+
+The project has been tested locally.
+
+| Verification | Result |
+|---|---|
+| Backend unit tests | 11 passed |
+| Next.js production build | Passed |
+| Grouped model training pipeline | Executed successfully |
+| Model artifacts | Generated locally |
+| SHAP individual explanations | Returned real values |
+| SHAP global importance | Returned real values |
+| SHAP summary endpoint | Returned PNG |
+| Data exploration | Generated profiles and distribution plots |
+
+The Windows environment initially encountered an invalid native SWC module and successfully fell back to the WASM compiler during the Next.js production build.
+
+Detailed evaluation findings are documented in:
+
+`reports/MODEL_EVALUATION.md`
+
+### Model evaluation transparency
+
+The measured holdout results include poor classification specificity and negative R² values for severity regression. These limitations are documented rather than concealed.
+
+All metrics are generated from actual model evaluation. No performance results are fabricated.
+
+---
+
+## ⚠️ Limitations and Responsible Use
+
+VoxSense has several important limitations:
+
+1. The classification dataset is small and imbalanced.
+2. The longitudinal dataset contains only 42 participants.
+3. The longitudinal cohort consists of individuals with early-stage Parkinson's disease.
+4. The supplied datasets contain extracted acoustic measurements, not original audio recordings.
+5. There is no independent external validation cohort.
+6. Prospective evaluation, calibration validation and comprehensive fairness analysis have not been established.
+7. The application has not undergone medical-device validation.
+
+Additional considerations:
+
+- IQR outlier flags are statistical indicators and do not establish erroneous records.
+- SHAP contributions indicate model associations, not causal relationships.
+- Longitudinal visualisations are descriptive and do not establish future progression forecasting.
+- Predictions must not be used as a substitute for professional medical assessment.
+
+---
+
+## 🔮 Future Enhancements
+
+Potential extensions include:
+
+- Integration of raw voice recording analysis using an appropriate open-source audio dataset.
+- Acoustic feature extraction from uploaded `.wav` recordings.
+- Real-time voice biomarker analysis.
+- Additional pathological voice datasets.
+- Improved external validation and model calibration.
+- Multimodal analysis combining acoustic, clinical and demographic information where appropriate.
+
+These are future directions and are not represented as currently implemented functionality.
+
+---
+
+## 👨‍💻 Author
+
+**Ragul Rishwanth P**
+
+GitHub: [@RagulRishwanth](https://github.com/RagulRishwanth)
+
+LinkedIn: [Ragul Rishwanth](https://www.linkedin.com/in/ragul-rishwanth-5330ba210/)
+
+---
+
+*VoxSense — Making voice biomarker analysis more transparent through explainable AI.*
