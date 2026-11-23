@@ -69,12 +69,12 @@ Explore classification models using numerical acoustic feature profiles.
 - Healthy and Parkinson's median feature profiles.
 - Sample patient analysis.
 - CSV-based batch predictions.
-- Classification probabilities where supported.
+- Classification probability estimates.
 - Model prediction visualization.
 
 ### 2. Explainable AI — SHAP
 
-VoxSense integrates SHAP to make model predictions more transparent.
+VoxSense integrates SHAP (SHapley Additive exPlanations) to make model predictions more transparent.
 
 - Individual prediction explanations.
 - Global feature importance.
@@ -182,7 +182,7 @@ The dataset contains repeated recordings from participants. Recording-name prefi
 
 The original `name` identifier is excluded from model predictors.
 
-**Dataset documentation note:** The UCI repository describes 197 instances and 22 features, while the supplied CSV contains 195 recording rows and an additional recording identifier column. This difference is retained for transparency.
+**Dataset documentation note:** The UCI repository describes 197 instances, while the supplied CSV contains 195 recording rows and an additional recording identifier column. This difference is retained for transparency.
 
 ### Dataset 2: Parkinson's Telemonitoring
 
