@@ -1,129 +1,203 @@
-# VoxSense 🧠
-### Explainable AI for Parkinson's Voice Biomarker Analysis
+<p align="center">
+  <img
+    src="assets/voxsense-banner.png"
+    alt="VoxSense - Explainable AI for Parkinson's Voice Biomarker Analysis"
+    width="100%"
+  />
+</p>
 
-VoxSense is an interactive AI-powered research application that analyses voice-derived acoustic measurements to explore patterns associated with Parkinson's disease.
+<p align="center">
+  <a href="https://voxsense-ruby.vercel.app/">
+    <img src="https://img.shields.io/badge/🚀_LIVE_DEMO-Explore_VoxSense-0891B2?style=for-the-badge" />
+  </a>
+  <a href="https://github.com/RagulRishwanth/VoxSense">
+    <img src="https://img.shields.io/badge/💻_SOURCE_CODE-GitHub-181717?style=for-the-badge&logo=github" />
+  </a>
+</p>
 
-It combines machine learning, longitudinal symptom analysis and Explainable AI (XAI) to provide transparent predictions and insights through an intuitive web application.
-
-Users can explore acoustic biomarkers, generate predictions using trained ML models, analyse patient-level measurements and understand the factors influencing model outputs.
-
-> **Disclaimer:** VoxSense is intended strictly for research and educational purposes. It is not a medical diagnostic tool and must not be used to make clinical decisions. The supplied datasets contain numerical acoustic measurements extracted from voice recordings; VoxSense does not process raw audio or perform speech recognition.
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" />
+  <img src="https://img.shields.io/badge/Scikit--learn-F7931E?style=for-the-badge&logo=scikitlearn&logoColor=white" />
+  <img src="https://img.shields.io/badge/SHAP-Explainable_AI-8A2BE2?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" />
+  <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white" />
+  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" />
+</p>
 
 ---
+
+> **Research & Educational Application**
+>
+> VoxSense analyzes pre-extracted numerical acoustic measurements. It does not process raw audio recordings, perform speech recognition, or provide clinical diagnoses. Predictions are statistical estimates and must not be used for medical decisions.
+
+---
+
+## 📌 Overview
+
+**Can subtle changes in voice reveal patterns associated with Parkinson's disease?**
+
+VoxSense is an interactive machine learning research platform designed to explore this question through biomedical acoustic measurements and explainable AI.
+
+Parkinson's disease can affect speech production, resulting in changes in vocal frequency, amplitude, pitch stability, and other acoustic characteristics.
+
+VoxSense brings together two publicly available biomedical voice datasets to explore different machine learning tasks:
+
+- **Classification:** Investigating whether extracted acoustic measurements can distinguish Parkinson's disease samples from healthy control samples.
+- **Severity Regression:** Exploring the relationship between vocal acoustic measurements and Motor UPDRS and Total UPDRS scores.
+- **Longitudinal Analysis:** Visualizing repeated patient measurements and symptom-score trends over time.
+- **Explainable AI:** Understanding the acoustic features influencing individual predictions and overall model behavior.
+
+The application combines these capabilities in an interactive web interface, allowing users to explore acoustic biomarkers, generate predictions, examine SHAP explanations, and investigate patient-level longitudinal measurements.
+
+### Application Preview
+
+<p align="center">
+  <img src="assets/voxsense-overview.png" width="100%" alt="VoxSense research overview dashboard" />
+</p>
+
+<p align="center">
+  <em>VoxSense — Research overview, datasets, methodology, and findings.</em>
+</p>
 
 ## ✨ Key Features
 
 ### 1. Interactive Parkinson's Classification
-- Predicts whether an acoustic feature profile belongs to a healthy control or Parkinson's disease group.
-- Supports manual feature entry.
-- Provides sample patient analysis using records from the supplied dataset.
-- Supports CSV-based batch predictions.
-- Displays model predictions and probabilities where supported.
 
-### 2. Explainable AI
-- Individual prediction explanations using SHAP.
+Explore classification models using numerical acoustic feature profiles.
+
+- Manual entry of 22 acoustic measurements.
+- Healthy and Parkinson's median feature profiles.
+- Sample patient analysis.
+- CSV-based batch predictions.
+- Classification probabilities where supported.
+- Model prediction visualization.
+
+### 2. Explainable AI — SHAP
+
+VoxSense integrates SHAP to make model predictions more transparent.
+
+- Individual prediction explanations.
 - Global feature importance.
-- SHAP summary visualisations.
+- SHAP summary visualizations.
 - Positive and negative feature contributions.
-- Interpretable insights into model behaviour.
+- Acoustic feature contribution rankings.
+- Interpretable insights into model behavior.
+
+<p align="center">
+  <img src="assets/voxsense-shap-analysis.png" width="100%" alt="VoxSense individual prediction and SHAP feature contribution analysis" />
+</p>
+
+<p align="center">
+  <em>Individual acoustic biomarker contributions using SHAP explainability.</em>
+</p>
 
 ### 3. UPDRS Severity Analysis
-- Predicts Motor UPDRS scores.
-- Predicts Total UPDRS scores.
-- Compares regression models.
-- Evaluates predictions using MAE, RMSE and R².
+
+Separate regression workflows explore two clinical severity measures:
+
+- Motor UPDRS prediction.
+- Total UPDRS prediction.
+- Regression model comparison.
+- MAE, RMSE, and R² evaluation.
+- Feature-based regression analysis.
 
 ### 4. Longitudinal Patient Insights
-- Explores repeated measurements across participants.
-- Visualises Motor UPDRS and Total UPDRS trends.
-- Compares patient trajectories.
-- Provides descriptive analysis of symptom measurements over time.
+
+Explore repeated measurements across participants in the telemonitoring dataset.
+
+- Individual participant profiles.
+- Motor UPDRS trends over time.
+- Total UPDRS trends over time.
+- Acoustic biomarker trajectories.
+- Patient-level comparisons.
+- Descriptive symptom progression visualizations.
+
+These visualizations describe recorded measurements; they do not constitute validated future disease-progression forecasts.
 
 ### 5. Model Laboratory
-- Model performance comparison.
-- Classification metrics and confusion matrices.
-- ROC and precision-recall analysis.
-- Regression evaluation.
-- Feature importance visualisations.
+
+A dedicated environment for exploring model evaluation and performance.
+
+- Classification model comparison.
+- Confusion matrices.
+- ROC curves.
+- Precision-recall analysis.
+- Regression performance metrics.
+- Feature importance visualizations.
 
 ### 6. Data Explorer
+
+Explore the underlying datasets and their characteristics.
+
 - Dataset previews.
 - Feature descriptions.
-- Data quality summaries.
 - Missing-value analysis.
-- Feature distributions and statistical insights.
-
----
-
-## 🛠️ Technology Stack
-
-| Component | Technologies |
-|---|---|
-| Frontend | Next.js, React, TypeScript |
-| Styling | Tailwind CSS |
-| Backend | Python, FastAPI |
-| Data Processing | Pandas, NumPy |
-| Machine Learning | Scikit-learn, XGBoost (optional) |
-| Explainable AI | SHAP |
-| Visualisation | Recharts, Matplotlib, Plotly |
-| Validation | Pydantic |
-| Testing | Pytest |
+- Data quality summaries.
+- Feature distributions.
+- Statistical insights.
 
 ---
 
 ## 📊 Datasets
 
-VoxSense uses two publicly available Parkinson's voice measurement datasets.
+VoxSense uses two publicly available biomedical voice measurement datasets from the UCI Machine Learning Repository.
 
-### Dataset 1: Parkinson's Classification Dataset
+### Dataset 1: Parkinson's Disease Classification
 
-**Source:** [UCI Machine Learning Repository — Parkinson's Disease](https://archive.ics.uci.edu/dataset/174/parkinsons)
+**Source:** [UCI Machine Learning Repository — Parkinsons](https://archive.ics.uci.edu/dataset/174/parkinsons)
 
-| Attribute | Details |
+| Characteristic | Details |
 |---|---|
-| Records | 195 |
-| Features | 22 numerical acoustic features |
+| Original dataset instances | 197 |
+| Actual CSV recordings | 195 |
+| Acoustic features | 22 |
 | Healthy controls | 48 |
 | Parkinson's samples | 147 |
-| Target | `status` |
-| Unique recording-name prefixes | 32 |
+| Original participants | 31 |
+| Target variable | `status` |
 
-The `status` column represents the binary classification target:
+The classification dataset contains biomedical voice measurements collected from healthy individuals and individuals with Parkinson's disease.
+
+The target variable represents:
 
 - `0` — Healthy control
 - `1` — Parkinson's disease group
 
-The dataset includes acoustic measurements such as:
+The acoustic measurements include:
 
 - MDVP:Fo
 - MDVP:Fhi
 - MDVP:Flo
-- Jitter
-- Shimmer
+- Jitter measurements
+- Shimmer measurements
 - NHR
 - HNR
 - RPDE
 - DFA
+- Spread1
+- Spread2
 - PPE
 
-The supplied documentation describes 197 instances and 23 attributes, while the actual CSV contains 195 rows and 24 columns, including the `name` identifier. This discrepancy is retained and documented for transparency.
+The dataset contains repeated recordings from participants. Recording-name prefixes are used to create recording-group-aware data splits.
 
-The recording-name prefixes are used to create patient/recording-group-aware splits. The original `name` field is excluded from model predictors.
+The original `name` identifier is excluded from model predictors.
 
-### Dataset 2: Parkinson's Telemonitoring Dataset
+**Dataset documentation note:** The UCI repository describes 197 instances and 22 features, while the supplied CSV contains 195 recording rows and an additional recording identifier column. This difference is retained for transparency.
+
+### Dataset 2: Parkinson's Telemonitoring
 
 **Source:** [UCI Machine Learning Repository — Parkinsons Telemonitoring](https://archive.ics.uci.edu/dataset/189/parkinsons+telemonitoring)
 
-| Attribute | Details |
+| Characteristic | Details |
 |---|---|
 | Records | 5,875 |
-| Columns | 22 |
 | Participants | 42 |
 | Acoustic features | 16 |
+| Original columns | 22 |
 | Target variables | `motor_UPDRS`, `total_UPDRS` |
 | Measurements per participant | 101–168 |
 
-This dataset contains repeated voice measurements from individuals with early-stage Parkinson's disease.
+This dataset contains repeated voice measurements from 42 individuals with early-stage Parkinson's disease, collected during a six-month telemonitoring study.
 
 It is used for:
 
@@ -134,9 +208,11 @@ It is used for:
 
 The dataset does not contain healthy control participants and is therefore not used for disease classification.
 
-### Dataset files
+### Dataset Files
 
-Place the following files inside `data/raw/`:
+Download both datasets from their respective UCI sources.
+
+Place the original files inside:
 
 ```text
 data/
@@ -147,57 +223,67 @@ data/
     └── parkinsons_updrs.names
 ```
 
-**Data privacy:** The original datasets are intentionally excluded from Git. Users must obtain the datasets from their respective sources and place them in the specified directory.
+The original datasets are intentionally excluded from Git. Users must obtain them from their respective sources.
 
 ---
 
-## 🧪 Machine Learning Methodology
+## 🧠 Machine Learning Methodology
 
-### Classification
+VoxSense implements two distinct machine learning workflows: binary classification and severity regression.
 
-The classification pipeline uses the Parkinson's classification dataset.
+### 1. Classification Pipeline
 
-Models compared:
+The classification pipeline uses the Parkinson's Disease Classification dataset.
+
+**Models compared:**
 
 - Logistic Regression
-- Support Vector Machine
+- Support Vector Machine (SVM)
 - Random Forest
 - Gradient Boosting
 - XGBoost (optional)
 
-Evaluation metrics:
+**Evaluation metrics:**
 
-- Accuracy
-- Precision
-- Recall
-- F1-score
-- ROC-AUC
-- Confusion Matrix
+| Metric | Purpose |
+|---|---|
+| Accuracy | Overall classification correctness |
+| Precision | Reliability of positive predictions |
+| Recall | Ability to identify positive samples |
+| F1-score | Balance between precision and recall |
+| ROC-AUC | Discriminative ability across thresholds |
+| Confusion Matrix | Classification error analysis |
 
-The classification pipeline uses recording-group-aware splitting and grouped cross-validation to reduce the risk of recordings from the same group appearing in both training and test sets.
+**Leakage-aware evaluation**
+
+The classification pipeline uses recording-group-aware splitting and grouped cross-validation.
+
+This helps prevent recordings associated with the same participant from appearing in both training and testing partitions.
 
 Model selection uses grouped cross-validation balanced accuracy, with ROC-AUC as a tie-breaker.
 
-### Severity Regression
+### 2. Severity Regression
 
-Separate regression models are trained for:
+The regression pipeline uses the Parkinson's Telemonitoring dataset.
 
-- Motor UPDRS
-- Total UPDRS
+Two independent targets are evaluated:
 
-The regression pipeline uses the 16 acoustic measurements as predictors.
+- `motor_UPDRS`
+- `total_UPDRS`
 
-Patient identifiers, time, demographic attributes and target variables are excluded from predictors.
+The 16 acoustic measurements are used as predictors.
 
-Evaluation metrics:
+Patient identifiers, time, demographic attributes, and target variables are excluded from predictors.
+
+**Evaluation metrics:**
 
 - Mean Absolute Error (MAE)
 - Root Mean Squared Error (RMSE)
 - R² Score
 
-A patient-disjoint holdout is used to evaluate generalisation to unseen participants.
+A patient-disjoint holdout is used to evaluate generalization to previously unseen participants.
 
-### Preprocessing and Leakage Prevention
+### 3. Preprocessing and Leakage Prevention
 
 The implementation includes:
 
@@ -217,61 +303,81 @@ Class balancing is restricted to applicable training fits.
 
 ## 🔍 Explainable AI
 
-VoxSense uses SHAP to make model predictions more transparent.
+A key component of VoxSense is the integration of SHAP (SHapley Additive exPlanations).
 
-The explainability module provides:
+Rather than presenting predictions as unexplained outputs, the application provides feature-level insights into model behavior.
 
-| Explanation | Purpose |
+| Explainability Component | Purpose |
 |---|---|
-| Global feature importance | Identifies features influential across predictions |
-| SHAP summary plot | Shows the distribution of feature contributions |
-| Individual explanations | Explains a particular prediction |
-| Feature contribution ranking | Highlights influential measurements |
-| Prediction interpretation | Communicates model behaviour in understandable language |
+| Global Feature Importance | Identifies features influential across predictions |
+| SHAP Summary Plot | Shows the distribution of feature contributions |
+| Individual Explanations | Explains a particular prediction |
+| Feature Contribution Ranking | Highlights influential measurements |
+| Prediction Interpretation | Communicates model behavior in understandable language |
 
-Feature contributions represent model associations and should not be interpreted as evidence of clinical causation.
+Acoustic measurements such as PPE, spread1, RPDE, DFA, and jitter-related features can be explored through the model's feature attribution outputs.
+
+SHAP contributions represent associations learned by the model. They should not be interpreted as evidence of clinical causation.
 
 ---
 
-## 🏗️ Project Architecture
+## 🏗️ System Architecture
 
-```text
-VoxSense/
-│
-├── backend/
-│   ├── app/
-│   │   ├── api/
-│   │   ├── core/
-│   │   ├── models/
-│   │   ├── schemas/
-│   │   └── services/
-│   │
-│   ├── ml/
-│   │   ├── preprocessing/
-│   │   ├── training/
-│   │   ├── evaluation/
-│   │   └── explainability/
-│   │
-│   ├── artifacts/
-│   ├── tests/
-│   └── requirements.txt
-│
-├── frontend/
-│
-├── data/
-│   ├── raw/
-│   └── processed/
-│
-├── docs/
-│   └── ARCHITECTURE.md
-│
-├── reports/
-│
-├── .gitignore
-└── README.md
+VoxSense follows a frontend-backend architecture.
+
+The backend handles data processing, model inference, explainability, and API operations, while the frontend provides the interactive research experience.
+
+### Architecture Diagram
+
+```mermaid
+flowchart TD
+    U["User"]
+
+    subgraph FRONTEND["Next.js Frontend"]
+        UI["Interactive Dashboard"]
+        V["Visualizations & Patient Insights"]
+    end
+
+    subgraph BACKEND["FastAPI Backend"]
+        API["REST API"]
+        PRE["Data Processing & Validation"]
+        ML["ML Inference Engine"]
+        SHAP["SHAP Explainability"]
+        REG["UPDRS Regression"]
+    end
+
+    DATA["UCI Voice Measurement Datasets"]
+    ART["Trained Model Artifacts"]
+
+    U --> UI
+    UI --> API
+    API --> PRE
+    PRE --> ML
+    PRE --> REG
+    ML --> SHAP
+    DATA --> PRE
+    ART --> ML
+    ART --> REG
+    ML --> API
+    REG --> API
+    SHAP --> API
+    API --> V
+    V --> UI
 ```
 
-The backend handles data processing, model inference, explainability and API operations. The Next.js frontend provides the interactive user experience.
+### Technology Stack
+
+| Component | Technologies |
+|---|---|
+| Frontend | Next.js, React, TypeScript |
+| Styling | Tailwind CSS |
+| Backend | Python, FastAPI |
+| Data Processing | Pandas, NumPy |
+| Machine Learning | Scikit-learn, XGBoost (optional) |
+| Explainable AI | SHAP |
+| Visualization | Recharts, Matplotlib, Plotly |
+| Validation | Pydantic |
+| Testing | Pytest |
 
 ---
 
@@ -284,22 +390,25 @@ The backend handles data processing, model inference, explainability and API ope
 - npm
 - Git
 
-### 1. Clone the repository
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/RagulRishwanth/VoxSense.git
+
 cd VoxSense
 ```
 
-### 2. Add the datasets
+### 2. Add the Datasets
 
-Download the two datasets from the UCI Machine Learning Repository and place the four source files inside:
+Download both datasets from the UCI Machine Learning Repository.
+
+Place the four original dataset files inside:
 
 ```text
 data/raw/
 ```
 
-### 3. Set up the backend
+### 3. Set Up the Backend
 
 **Windows PowerShell:**
 
@@ -325,7 +434,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 4. Train the models
+### 4. Train the Models
 
 Run the training pipeline from the `backend/` directory:
 
@@ -341,7 +450,7 @@ backend/artifacts/
 
 The artifacts are excluded from Git and can be reproduced using the training pipeline.
 
-### 5. Start the backend
+### 5. Start the Backend
 
 From the `backend/` directory:
 
@@ -351,13 +460,17 @@ python -m uvicorn app.main:app --reload
 
 Backend:
 
-`http://localhost:8000`
+```text
+http://localhost:8000
+```
 
 Interactive API documentation:
 
-`http://localhost:8000/docs`
+```text
+http://localhost:8000/docs
+```
 
-### 6. Start the frontend
+### 6. Start the Frontend
 
 Open a second terminal:
 
@@ -367,7 +480,7 @@ cd frontend
 npm install
 ```
 
-Set the backend API URL.
+Configure the backend API URL.
 
 **Windows PowerShell:**
 
@@ -385,9 +498,9 @@ export NEXT_PUBLIC_API_URL="http://localhost:8000/api"
 npm run dev
 ```
 
-Open:
+Open the application:
 
-**http://localhost:3000**
+[http://localhost:3000](http://localhost:3000)
 
 ---
 
@@ -439,11 +552,15 @@ The Windows environment initially encountered an invalid native SWC module and s
 
 Detailed evaluation findings are documented in:
 
-`reports/MODEL_EVALUATION.md`
+```text
+reports/MODEL_EVALUATION.md
+```
 
-### Model evaluation transparency
+### Model Evaluation Transparency
 
-The measured holdout results include poor classification specificity and negative R² values for severity regression. These limitations are documented rather than concealed.
+The measured holdout results include poor classification specificity and negative R² values for severity regression.
+
+These limitations are documented rather than concealed.
 
 All metrics are generated from actual model evaluation. No performance results are fabricated.
 
@@ -451,21 +568,23 @@ All metrics are generated from actual model evaluation. No performance results a
 
 ## ⚠️ Limitations and Responsible Use
 
-VoxSense has several important limitations:
+VoxSense is a research and educational application. It is not a clinically validated diagnostic tool.
+
+Important limitations include:
 
 1. The classification dataset is small and imbalanced.
 2. The longitudinal dataset contains only 42 participants.
 3. The longitudinal cohort consists of individuals with early-stage Parkinson's disease.
 4. The supplied datasets contain extracted acoustic measurements, not original audio recordings.
 5. There is no independent external validation cohort.
-6. Prospective evaluation, calibration validation and comprehensive fairness analysis have not been established.
+6. Prospective evaluation, calibration validation, and comprehensive fairness analysis have not been established.
 7. The application has not undergone medical-device validation.
 
 Additional considerations:
 
 - IQR outlier flags are statistical indicators and do not establish erroneous records.
 - SHAP contributions indicate model associations, not causal relationships.
-- Longitudinal visualisations are descriptive and do not establish future progression forecasting.
+- Longitudinal visualizations are descriptive and do not establish future progression forecasting.
 - Predictions must not be used as a substitute for professional medical assessment.
 
 ---
@@ -479,7 +598,7 @@ Potential extensions include:
 - Real-time voice biomarker analysis.
 - Additional pathological voice datasets.
 - Improved external validation and model calibration.
-- Multimodal analysis combining acoustic, clinical and demographic information where appropriate.
+- Multimodal analysis combining acoustic, clinical, and demographic information where appropriate.
 
 These are future directions and are not represented as currently implemented functionality.
 
@@ -489,10 +608,16 @@ These are future directions and are not represented as currently implemented fun
 
 **Ragul Rishwanth P**
 
-GitHub: [@RagulRishwanth](https://github.com/RagulRishwanth)
+AI Engineering | Machine Learning | Explainable AI
 
-LinkedIn: [Ragul Rishwanth](https://www.linkedin.com/in/ragul-rishwanth-5330ba210/)
+- GitHub: [@RagulRishwanth](https://github.com/RagulRishwanth)
+- LinkedIn: [Ragul Rishwanth](https://www.linkedin.com/in/ragul-rishwanth-5330ba210/)
+- Portfolio: [ragul-rishwanth-portfolio.vercel.app](https://ragul-rishwanth-portfolio.vercel.app/)
 
 ---
 
-*VoxSense — Making voice biomarker analysis more transparent through explainable AI.*
+<p align="center">
+  <strong>VoxSense</strong>
+  <br/>
+  Making voice biomarker analysis more transparent through explainable AI.
+</p>
